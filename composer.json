@@ -1,7 +1,7 @@
 {
   "name": "i74ifa/role-craft",
   "description": "automating role creation and permission management with Spatie/Laravel-Permission.",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "keywords": [
     "i74ifa",
     "role-craft",
