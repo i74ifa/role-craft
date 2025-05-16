@@ -62,7 +62,7 @@ return [
     | This option to set the default guard in base Models/ Path
     |
     */
-    'guard' => env('ROLE_CRAFT_GUARD', 'web'),
+    'guard' => 'web',
 
     /*
     |--------------------------------------------------------------------------
@@ -73,7 +73,7 @@ return [
     | set 0 to get subdirectories models
     |
     */
-    'models_depth' => env('ROLE_CRAFT_MODELS_DEPTH', 0),
+    'models_depth' => 0,
 
     /*
     |--------------------------------------------------------------------------
@@ -83,5 +83,15 @@ return [
     | This option to set if you want to use sub-directory name to permission name
     |
     */
-    'subdirectory_permission_name' => env('ROLE_CRAFT_SUBDIRECTORY_PERMISSION_NAME', false),
+    'subdirectory_permission_name' => false,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Models Path
+    |--------------------------------------------------------------------------
+    |
+    | This option to set the models path from base path
+    |
+    */
+    'models_path' => 'app/Models',
 ];

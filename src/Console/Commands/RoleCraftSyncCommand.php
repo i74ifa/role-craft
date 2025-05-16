@@ -10,7 +10,7 @@ use Spatie\Permission\Models\Role;
 
 class RoleCraftSyncCommand extends Command
 {
-	/**
+    /**
      * The name and signature of the console command.
      *
      * @var string
@@ -66,6 +66,5 @@ class RoleCraftSyncCommand extends Command
         }
 
         $this->comment('Synced Finished.');
-
     }
 }

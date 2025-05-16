@@ -14,7 +14,7 @@ class RoleCraftCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'role-craft:generate';
+    protected $signature = 'role-craft:generate {--guard=} {--models=*} {--role=} {--path=}';
 
     /**
      * The console command description.
@@ -28,14 +28,17 @@ class RoleCraftCommand extends Command
      */
     public function handle()
     {
-        $models = ModelHelper::getAll(true);
+        $guardName = $this->getGuard();
+        $models = $this->getModels();
+        $roleName = $this->option('role') ?: config('role-craft.default_role');
+        $role = Role::where('name', $roleName)->first() ?:
+            Role::create(['name' => $roleName, 'guard_name' => $guardName]);
 
         if (empty($models)) {
             $this->error('No models found');
             return;
         }
 
-        $role = Role::where('name', config('role-craft.default_role'))->first() ?: Role::create(['name' => config('role-craft.default_role'), 'guard_name' => config('role-craft.guard')]);
         $permissions = [];
         $separator = config('role-craft.separator');
         $modelDepth = config('role-craft.models_depth') > 1;
@@ -50,7 +53,7 @@ class RoleCraftCommand extends Command
                 $permissionName = $depth ? sprintf('%s%s%s%s%s', $depth, $separator, $table, $separator, $permission) : sprintf('%s%s%s', $table, $separator, $permission);
 
                 if (!Permission::where('name', $permissionName)->exists()) {
-                    $permissions[] = Permission::create(['name' => $permissionName, 'guard_name' => config('role-craft.guard')]);
+                    $permissions[] = Permission::create(['name' => $permissionName, 'guard_name' => $guardName]);
                     $this->info('created permission ' . $permissionName);
                 }
             }
@@ -58,5 +61,31 @@ class RoleCraftCommand extends Command
 
         $role->syncPermissions($permissions);
         $this->comment('created and assign to role. 🫡');
+    }
+
+    protected function getModels()
+    {
+        $models = $this->option('models');
+
+        if ($models) {
+            $models = array_map(function ($model) {
+                return ModelHelper::getModel($model);
+            }, $models);
+        } else {
+            $models = ModelHelper::getAll(abstract: true, path: $this->option('path') ?? null);
+        }
+
+        return array_filter($models);
+    }
+
+    protected function getGuard()
+    {
+        $guard = $this->option('guard');
+
+        if ($guard) {
+            return $guard;
+        }
+
+        return config('role-craft.guard');
     }
 }

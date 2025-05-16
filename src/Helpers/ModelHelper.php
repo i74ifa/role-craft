@@ -2,20 +2,21 @@
 
 namespace I74ifa\RoleCraft\Helpers;
 
+use ReflectionClass;
 use Symfony\Component\Finder\Finder;
 
 class ModelHelper
 {
-    public static function getAll($abstract = false)
+    public static function getAll($abstract = false, $path = null)
     {
-        $modelsPath = app_path('Models'); // Base models directory
-        $namespace = app()->getNamespace();
+        $depth = $path ? config('role-craft.models_depth') : 0;
+        $path = $path ?: config('role-craft.models_path', 'app/Models');
+        $modelsPath = base_path($path);
 
         $finder = new Finder();
         $models = [];
 
         // Get depth from configuration
-        $depth = config('role-craft.models_depth');
 
         $finder->files()->in($modelsPath)->name('*.php');
 
@@ -24,11 +25,7 @@ class ModelHelper
         }
 
         foreach ($finder as $file) {
-            // Get the relative path and convert it to a namespace
-            $relativePath = str_replace(['/', '.php'], ['\\', ''], $file->getRelativePathname());
-            $model = $namespace . 'Models\\' . $relativePath;
-
-            // Check if the class exists and is a subclass of Eloquent Model
+            $model = self::getNamespaceFromPath($file->getPathname());
             if (class_exists($model) && is_subclass_of($model, 'Illuminate\Database\Eloquent\Model')) {
                 $models[] = $model;
             }
@@ -59,35 +56,39 @@ class ModelHelper
 
     public static function getDepth($model, $separator)
     {
-        // If it's a class name (App\Models\ERP\Central\User)
         if (class_exists($model)) {
             $reflection = new \ReflectionClass($model);
             $fileName = $reflection->getFileName();
             $appPath = app_path();
 
-            // Get the relative path from app directory
             $relativePath = str_replace([$appPath, '\\'], ['', '/'], $fileName);
 
-            // Extract the subdirectory between Models and the filename
             if (preg_match('#/Models/(.+)/[^/]+\.php$#', $relativePath, $matches)) {
-                // Convert directory separators to the configured separator
                 return strtolower(str_replace('/', $separator, $matches[1]));
             }
 
-            return null; // In root Models directory
-        }
-        // If it's a path (App/Models/ERP/Central/User.php)
-        else {
-            // Normalize path separators
+            return null;
+        } else {
             $model = str_replace('\\', '/', $model);
-
-            // Extract the subdirectory between Models and the filename
             if (preg_match('#Models/(.+)/[^/]+\.php$#', $model, $matches)) {
-                // Convert directory separators to the configured separator
                 return strtolower(str_replace('/', $separator, $matches[1]));
             }
 
-            return null; // In root Models directory
+            return null;
         }
+    }
+
+    protected static function getNamespaceFromPath($path)
+    {
+        $pos = strpos($path, 'App/Models');
+
+        if ($pos === false) {
+            return null;
+        }
+        $relativePath = substr($path, $pos);
+        $withoutExtension = pathinfo($relativePath, PATHINFO_DIRNAME) . '/' . pathinfo($relativePath, PATHINFO_FILENAME);
+        $namespace = str_replace('/', '\\', $withoutExtension);
+
+        return $namespace;
     }
 }
