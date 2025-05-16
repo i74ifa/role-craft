@@ -9,7 +9,7 @@ use Spatie\Permission\Models\Role;
 
 class RoleCraftCommand extends Command
 {
-	/**
+    /**
      * The name and signature of the console command.
      *
      * @var string
@@ -35,16 +35,22 @@ class RoleCraftCommand extends Command
             return;
         }
 
-        $role = Role::where('name', config('role-craft.default_role'))->first() ?: Role::create(['name' => config('role-craft.default_role')]);
+        $role = Role::where('name', config('role-craft.default_role'))->first() ?: Role::create(['name' => config('role-craft.default_role'), 'guard_name' => config('role-craft.guard')]);
         $permissions = [];
+        $separator = config('role-craft.separator');
+        $modelDepth = config('role-craft.models_depth') > 1;
+        $this->info('Creating permissions for models...');
         foreach ($models as $model) {
             $table = ModelHelper::getTable($model);
 
+            // get depth of the model
+            $depth = ModelHelper::getDepth($model, $separator);
+
             foreach (ModelHelper::getPermissions($model) as $permission) {
-                $permissionName = sprintf('%s%s%s', $table, config('role-craft.separator'), $permission);
-                
+                $permissionName = $depth ? sprintf('%s%s%s%s%s', $depth, $separator, $table, $separator, $permission) : sprintf('%s%s%s', $table, $separator, $permission);
+
                 if (!Permission::where('name', $permissionName)->exists()) {
-                    $permissions[] = Permission::create(['name' => $permissionName]);
+                    $permissions[] = Permission::create(['name' => $permissionName, 'guard_name' => config('role-craft.guard')]);
                     $this->info('created permission ' . $permissionName);
                 }
             }

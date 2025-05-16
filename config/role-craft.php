@@ -53,4 +53,35 @@ return [
     ],
 
     'separator' => '.',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Default Role Model
+    |--------------------------------------------------------------------------
+    |
+    | This option to set the default guard in base Models/ Path
+    |
+    */
+    'guard' => env('ROLE_CRAFT_GUARD', 'web'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Depth of the Models
+    |--------------------------------------------------------------------------
+    |
+    | This option to set what depth of the models you want to create
+    | set 0 to get subdirectories models
+    |
+    */
+    'models_depth' => env('ROLE_CRAFT_MODELS_DEPTH', 0),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Use Sub-directory name to permission name
+    |--------------------------------------------------------------------------
+    |
+    | This option to set if you want to use sub-directory name to permission name
+    |
+    */
+    'subdirectory_permission_name' => env('ROLE_CRAFT_SUBDIRECTORY_PERMISSION_NAME', false),
 ];
