@@ -80,7 +80,7 @@ class ModelHelper
 
     protected static function getNamespaceFromPath($path)
     {
-        $pos = strpos($path, 'App/Models');
+        $pos = strpos($path, 'app/Models');
 
         if ($pos === false) {
             return null;
@@ -88,6 +88,7 @@ class ModelHelper
         $relativePath = substr($path, $pos);
         $withoutExtension = pathinfo($relativePath, PATHINFO_DIRNAME) . '/' . pathinfo($relativePath, PATHINFO_FILENAME);
         $namespace = str_replace('/', '\\', $withoutExtension);
+        $namespace = ucfirst($namespace);
 
         return $namespace;
     }
