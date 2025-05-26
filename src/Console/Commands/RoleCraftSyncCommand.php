@@ -15,10 +15,13 @@ class RoleCraftSyncCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'role-craft:sync {name} {--create} {--models=*} {--all}';
-    // {name} : role name
-    // {--force?} : force sync
-    // {--recreate?} : recreate role and permissions
+    protected $signature = 'role-craft:sync
+            {name}
+            {--create}
+            {--models=* : models to sync}
+            {--all : sync all permissions}
+            {--guard= : guard name}
+            {--path= : path models}';
 
     /**
      * The console command description.
@@ -34,10 +37,11 @@ class RoleCraftSyncCommand extends Command
     {
         $roleName = $this->argument('name');
         $create = $this->option('create');
-        $models = $this->option('models');
+        $models = $this->getModels();
         $isAll = $this->option('all');
+        $guardName = $this->option('guard') ?? config('auth.defaults.guard');
 
-        $role = Role::where('name', $roleName)->first() ?? ($create ? Role::create(['name' => $roleName]) : null);
+        $role = Role::where('name', $roleName)->where('guard_name', $guardName)->first() ?? ($create ? Role::create(['name' => $roleName, 'guard_name' => $guardName]) : null);
 
         if (!$role) {
             $this->error('Role not found, if you want create it by me, please use --create option');
@@ -66,5 +70,20 @@ class RoleCraftSyncCommand extends Command
         }
 
         $this->comment('Synced Finished.');
+    }
+
+    protected function getModels()
+    {
+        $models = $this->option('models');
+
+        if ($models) {
+            $models = array_map(function ($model) {
+                return ModelHelper::getModel($model);
+            }, $models);
+        } else {
+            $models = ModelHelper::getAll(abstract: true, path: $this->option('path') ?? null);
+        }
+
+        return array_filter($models);
     }
 }

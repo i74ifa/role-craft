@@ -14,7 +14,11 @@ class RoleCraftCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'role-craft:generate {--guard=} {--models=*} {--role=} {--path=}';
+    protected $signature = 'role-craft:generate
+    {--guard= : guar name to generate}
+    {--models=* : models to generate}
+    {--role= : role name}
+    {--path= : path models}';
 
     /**
      * The console command description.
