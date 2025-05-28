@@ -21,7 +21,9 @@ class RoleCraftSyncCommand extends Command
             {--models=* : models to sync}
             {--all : sync all permissions}
             {--guard= : guard name}
-            {--path= : path models}';
+            {--path= : path models}
+            {--depth= : depth of the models}
+            ';
 
     /**
      * The console command description.
@@ -81,7 +83,7 @@ class RoleCraftSyncCommand extends Command
                 return ModelHelper::getModel($model);
             }, $models);
         } else {
-            $models = ModelHelper::getAll(abstract: true, path: $this->option('path') ?? null);
+            $models = ModelHelper::getAll(abstract: true, path: $this->option('path') ?? null, depth: $this->option('depth') ?? null);
         }
 
         return array_filter($models);
