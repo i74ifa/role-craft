@@ -7,9 +7,9 @@ use Symfony\Component\Finder\Finder;
 
 class ModelHelper
 {
-    public static function getAll($abstract = false, $path = null)
+    public static function getAll($abstract = false, $path = null, $depth = null)
     {
-        $depth = $path ? config('role-craft.models_depth') : 0;
+        $depth = $depth ? $depth : ($path ? config('role-craft.models_depth') : 0);
         $path = $path ?: config('role-craft.models_path', 'app/Models');
         $modelsPath = base_path($path);
 

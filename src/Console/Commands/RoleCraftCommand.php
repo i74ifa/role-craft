@@ -18,7 +18,8 @@ class RoleCraftCommand extends Command
     {--guard= : guar name to generate}
     {--models=* : models to generate}
     {--role= : role name}
-    {--path= : path models}';
+    {--path= : path models}
+    {--depth= : depth of models}';
 
     /**
      * The console command description.
@@ -76,7 +77,7 @@ class RoleCraftCommand extends Command
                 return ModelHelper::getModel($model);
             }, $models);
         } else {
-            $models = ModelHelper::getAll(abstract: true, path: $this->option('path') ?? null);
+            $models = ModelHelper::getAll(abstract: true, path: $this->option('path') ?? null, depth: $this->option('depth') ?? null);
         }
 
         return array_filter($models);
