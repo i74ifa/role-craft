@@ -13,18 +13,22 @@ jobs:
             fail-fast: true
             matrix:
                 os: [ubuntu-latest, windows-latest]
-                php: [7.4, 8.0]
-                laravel: [8.*]
-                stability: [prefer-lowest, prefer-stable]
+                php: [8.3, 8.4]
+                laravel: [11.*, 12.*, 13.*]
+                stability: [prefer-stable]
                 include:
-                    - laravel: 8.*
-                      testbench: ^6.6
+                    - laravel: 11.*
+                      testbench: ^9.0
+                    - laravel: 12.*
+                      testbench: ^10.0
+                    - laravel: 13.*
+                      testbench: ^11.0
 
         name: P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.stability }} - ${{ matrix.os }}
 
         steps:
             - name: Checkout code
-              uses: actions/checkout@v2
+              uses: actions/checkout@v4
 
             - name: Setup PHP
               uses: shivammathur/setup-php@v2
@@ -37,9 +41,11 @@ jobs:
               run: |
                   echo "::add-matcher::${{ runner.tool_cache }}/php.json"
                   echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
+
             - name: Install dependencies
               run: |
                   composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
                   composer update --${{ matrix.stability }} --prefer-dist --no-interaction
+
             - name: Execute tests
               run: vendor/bin/phpunit
