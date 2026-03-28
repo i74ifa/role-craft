@@ -1,4 +1,5 @@
-#  Role-Craft for spatie/laravel-permission
+# Role-Craft for spatie/laravel-permission
+
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/i74ifa/role-craft.svg?style=flat-square)](https://packagist.org/packages/i74ifa/role-craft)
 [![Total Downloads](https://img.shields.io/packagist/dt/i74ifa/role-craft.svg?style=flat-square)](https://packagist.org/packages/i74ifa/role-craft)
 ![GitHub Actions](https://github.com/i74ifa/role-craft/actions/workflows/main.yml/badge.svg)
@@ -8,6 +9,13 @@
 ```bash
 composer require i74ifa/role-craft
 ```
+
+## Version Compatibility
+
+| Version  | Laravel       | Spatie Permission | PHP  |
+| :------- | :------------ | :---------------- | :--- |
+| **v2.x** | 12.0+ / 13.0+ | 7.0+              | 8.4+ |
+| **v1.x** | 10.0+ / 11.0+ | 6.x               | 8.2+ |
 
 ### optional
 
@@ -19,20 +27,21 @@ php artisan vendor:publish --tag=role-craft-config
 
 ## Usage
 
-
 ### Generate role and Permissions
+
 ```bash
 php artisan role-craft:generate
 ```
+
 this command will be generate all permissions and `role-craft.default_role` will be created
 if you want to change default role name, you can change it in config/role-craft.php after publish config
-
 
 ### Sync permissions
 
 ```bash
 php artisan role-craft:sync manager --all
 ```
+
 this will be sync all permissions to `manager` role if it exists
 if not exists you want to use `--create` option
 
@@ -50,10 +59,10 @@ php artisan role-craft:sync manager --models=App\Models\Directory\User
 ```
 
 Generate role if not exists
+
 ```bash
 php artisan role-craft:sync manager --create
 ```
-
 
 ## License
 
