@@ -24,14 +24,30 @@ class ModelHelper
             $finder->depth($depth - 1);
         }
 
+        $excluded = (array) config('role-craft.excluded_models', []);
+
         foreach ($finder as $file) {
             $model = self::getNamespaceFromPath($file->getPathname());
-            if (class_exists($model) && is_subclass_of($model, 'Illuminate\Database\Eloquent\Model')) {
+            if (class_exists($model) && is_subclass_of($model, 'Illuminate\Database\Eloquent\Model') && !self::isExcluded($model, $excluded)) {
                 $models[] = $model;
             }
         }
 
         return $abstract ? $models : $models;
+    }
+
+    protected static function isExcluded($model, array $patterns)
+    {
+        $normalized = ltrim($model, '\\');
+
+        foreach ($patterns as $pattern) {
+            $pattern = ltrim($pattern, '\\');
+            if ($normalized === $pattern || fnmatch($pattern, $normalized, FNM_NOESCAPE)) {
+                return true;
+            }
+        }
+
+        return false;
     }
     public static function getModel($model)
     {

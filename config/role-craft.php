@@ -94,4 +94,21 @@ return [
     |
     */
     'models_path' => 'app/Models',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Excluded Models
+    |--------------------------------------------------------------------------
+    |
+    | Fully-qualified model class names that should be skipped when scanning
+    | the models directory. Wildcards are supported via fnmatch, e.g.:
+    |
+    |   App\Models\User::class,
+    |   'App\Models\Internal\*',
+    |   '*\Pivot\*',
+    |
+    */
+    'excluded_models' => [
+        //
+    ],
 ];
