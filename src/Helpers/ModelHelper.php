@@ -24,19 +24,27 @@ class ModelHelper
             $finder->depth($depth - 1);
         }
 
+        $included = (array) config('role-craft.included_models', []);
         $excluded = (array) config('role-craft.excluded_models', []);
 
         foreach ($finder as $file) {
             $model = self::getNamespaceFromPath($file->getPathname());
-            if (class_exists($model) && is_subclass_of($model, 'Illuminate\Database\Eloquent\Model') && !self::isExcluded($model, $excluded)) {
-                $models[] = $model;
+            if (!class_exists($model) || !is_subclass_of($model, 'Illuminate\Database\Eloquent\Model')) {
+                continue;
             }
+            if (!empty($included) && !self::matchesAny($model, $included)) {
+                continue;
+            }
+            if (self::matchesAny($model, $excluded)) {
+                continue;
+            }
+            $models[] = $model;
         }
 
         return $abstract ? $models : $models;
     }
 
-    protected static function isExcluded($model, array $patterns)
+    protected static function matchesAny($model, array $patterns)
     {
         $normalized = ltrim($model, '\\');
 
@@ -48,6 +56,11 @@ class ModelHelper
         }
 
         return false;
+    }
+
+    protected static function isExcluded($model, array $patterns)
+    {
+        return self::matchesAny($model, $patterns);
     }
     public static function getModel($model)
     {

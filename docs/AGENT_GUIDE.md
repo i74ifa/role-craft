@@ -46,7 +46,8 @@ Requires `spatie/laravel-permission` to be installed and migrated first.
 | `models_depth` | `int` | `0` | `0` = recursive (all subdirs). `>0` = only files exactly that deep under `models_path`. |
 | `subdirectory_permission_name` | `bool` | `false` | If true, prefixes permission names with the subdirectory path. |
 | `models_path` | `string` | `'app/Models'` | Base directory to scan. Relative to `base_path()`. |
-| `excluded_models` | `string[]` | `[]` | FQCNs to skip. Supports `fnmatch` wildcards. Only applies to directory scans, not explicit `--models=`. |
+| `included_models` | `string[]` | `[]` | Whitelist. If empty, all models are included. If non-empty, **only** matching FQCNs are scanned (everything else is excluded). Supports `fnmatch` wildcards. Applies to directory scans only. |
+| `excluded_models` | `string[]` | `[]` | Blacklist. FQCNs to skip. Applied **after** `included_models`. Supports `fnmatch` wildcards. Applies to directory scans only. |
 
 ---
 
@@ -78,7 +79,7 @@ class Post extends Model
 
 ### Helpers (`I74ifa\RoleCraft\Helpers\ModelHelper`)
 
-- `getAll($abstract = false, $path = null, $depth = null)` — scan & return FQCNs, honors `excluded_models`.
+- `getAll($abstract = false, $path = null, $depth = null)` — scan & return FQCNs, honors `included_models` (whitelist) and `excluded_models` (blacklist).
 - `getModel('User')` — resolves shorthand to `App\Models\User`.
 - `getTable($model)`, `getPrefixPermission($model)`, `getPermissions($model)`, `getDepth($model, $sep)`.
 
@@ -131,18 +132,35 @@ php artisan role-craft:sync manager --models=App\\Models\\Billing\\Invoice
 
 ---
 
-## Excluding models
+## Including / excluding models
+
+Two complementary filters control which models are picked up by a directory scan:
 
 ```php
 // config/role-craft.php
+
+// Whitelist — when non-empty, ONLY matching classes are scanned.
+// "Exclude all" is the implicit default for anything not in this list.
+'included_models' => [
+    'App\Models\Billing\*',
+    App\Models\User::class,
+],
+
+// Blacklist — applied AFTER included_models. Use to carve exceptions
+// out of an otherwise-included subtree.
 'excluded_models' => [
-    App\Models\User::class,          // exact
-    'App\Models\Internal\*',         // whole subtree
-    '*\Pivot\*',                     // any Pivot folder anywhere
+    'App\Models\Internal\*',
+    '*\Pivot\*',
 ],
 ```
 
-Matching uses `fnmatch` on the FQCN. The filter is only applied during a directory scan — passing `--models=Foo` explicitly still includes `Foo` (user intent wins).
+Rules:
+
+- Both arrays use `fnmatch` on the fully-qualified class name (leading backslashes are normalized).
+- If `included_models` is empty (default), every Eloquent model is included.
+- If `included_models` is non-empty, anything not matched is dropped — this is the "exclude all except these" mode.
+- `excluded_models` is then applied on top, so you can whitelist `App\Models\Billing\*` and still exclude `App\Models\Billing\Internal\*`.
+- Both filters apply to directory scans only. Passing `--models=Foo` explicitly still includes `Foo` (user intent wins).
 
 ---
 

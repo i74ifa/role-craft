@@ -97,11 +97,35 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Excluded Models
+    | Included Models (whitelist)
+    |--------------------------------------------------------------------------
+    |
+    | If empty, every Eloquent model found under the models directory is
+    | included (default). When non-empty, ONLY models matching one of these
+    | patterns are included — everything else is treated as "excluded all".
+    | This is the right option when a project should generate permissions
+    | for a curated subset of models, not the whole tree.
+    |
+    | Patterns use fnmatch wildcards on the fully-qualified class name, e.g.:
+    |
+    |   App\Models\User::class,
+    |   'App\Models\Billing\*',
+    |   '*\Public\*',
+    |
+    */
+    'included_models' => [
+        //
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Excluded Models (blacklist)
     |--------------------------------------------------------------------------
     |
     | Fully-qualified model class names that should be skipped when scanning
-    | the models directory. Wildcards are supported via fnmatch, e.g.:
+    | the models directory. Applied AFTER `included_models`, so you can both
+    | whitelist a subtree and then carve a few classes out of it. Wildcards
+    | are supported via fnmatch, e.g.:
     |
     |   App\Models\User::class,
     |   'App\Models\Internal\*',
